@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>OCR Documents Administratifs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .doc-result { margin-bottom: 36px; border-bottom: 1px solid #ddd; padding-bottom: 20px;}
+        img.doc-img {max-width: 320px; border: 1px solid #aaa; margin-bottom: 8px;}
+        .emoji {font-size: 2em;}
+        .flash { color: red; }
+        label { margin-right: 16px; }
+        fieldset { margin-bottom: 18px; }
+    </style>
+</head>
+<body>
+    <h1>🔎 OCR Documents Administratifs</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash">
+          {% for category, message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" enctype="multipart/form-data">
+        <fieldset>
+            <legend>Types de documents à retrouver</legend>
+            <label><input type="checkbox" name="ci_check" checked> Carte d'identité</label>
+            <label><input type="checkbox" name="passeport_check" checked> Passeport</label>
+            <label><input type="checkbox" name="ts_check" checked> Titre de séjour</label>
+            <label><input type="checkbox" name="jd_check"> Justificatif de domicile</label>
+            <label><input type="checkbox" name="rib_check"> RIB</label>
+        </fieldset>
+        <fieldset>
+            <legend>Filtrer par nom/prénom (obligatoire)</legend>
+            Nom : <input type="text" name="nom" required>
+            Prénom : <input type="text" name="prenom">
+        </fieldset>
+        <fieldset>
+            <legend>Sélectionner des fichiers (PDF ou images scannées)</legend>
+            <input type="file" name="files" multiple accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff" required>
+        </fieldset>
+        <input type="submit" value="Analyser">
+    </form>
+
+    {% if resultats %}
+        <h2>Résultats</h2>
+        {% for res in resultats %}
+            <div class="doc-result">
+                <span class="emoji">{{ res.emoji }}</span>
+                <b>{{ res.type }}</b> — {{ res.nom }} {{ res.prenom }}<br>
+                <i>{{ res.filename }} (page {{ res.page }})</i><br>
+                <img class="doc-img" src="data:image/png;base64,{{ res.img_b64 }}" alt="Image du document">
+                <details>
+                    <summary>Voir texte OCR</summary>
+                    <textarea readonly rows="8" cols="80">{{ res.texte }}</textarea>
+                </details>
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
