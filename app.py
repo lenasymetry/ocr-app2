@@ -6,8 +6,7 @@ from PIL import Image
 from ocr_utils import ocr_space_file
 import numpy as np
 import cv2
-import re
-import time  # Pour insérer une pause si nécessaire
+import time
 
 st.set_page_config(layout="wide")
 
@@ -47,9 +46,8 @@ def prepare_ocr_image(pil_image):
                                        cv2.THRESH_BINARY, 11, 2)
     return Image.fromarray(img_cv)
 
-# Toutes les fonctions detect_xxx, normalize_str, match_nom_prenom, emoji_doc inchangées
-
-# ... (les fonctions de détection restent inchangées, comme dans votre message)
+# Tu dois définir ici ou importer les fonctions suivantes :
+# detect_type_doc, match_nom_prenom, emoji_doc
 
 uploaded_files = st.file_uploader(
     "Sélectionnez vos documents (PDF ou images scannées, tout type administratif)",
@@ -77,9 +75,8 @@ if uploaded_files:
 
         for idx, img in enumerate(images):
             prep_img = prepare_ocr_image(img)
-            # --- Appel à l’API OCR.Space ---
-            texte = ocr_space_file(prep_img)
-            time.sleep(1.2)  # Optionnel : évite de spammer l'API si plusieurs fichiers
+            texte = ocr_space_file(prep_img)  # Appel à l’API OCR.Space avec ta clé intégrée
+            time.sleep(1.2)  # Évite de spammer l'API si plusieurs fichiers/pages
 
             type_trouve = detect_type_doc(texte)
             if type_trouve and match_nom_prenom(texte, nom_cible, prenom_cible):
