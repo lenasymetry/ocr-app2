@@ -7,9 +7,12 @@ import pytesseract
 import numpy as np
 import cv2
 import re
+import pytesseract
+
+
 
 # Chemin vers tesseract sur ta machine locale (à adapter ou commenter si sur Streamlit Cloud)
-# pytesseract.pytesseract.tesseract_cmd = "/opt/homebrew/bin/tesseract"
+pytesseract.pytesseract.tesseract_cmd = "/opt/homebrew/bin/tesseract"
 
 st.set_page_config(layout="wide")
 
