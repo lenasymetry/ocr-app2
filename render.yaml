@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ocr-app
+    env: python
+    buildCommand: |
+      apt-get update && apt-get install -y tesseract-ocr tesseract-ocr-fra tesseract-ocr-eng
+      pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port 10000 --server.address 0.0.0.0
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    plan: free
