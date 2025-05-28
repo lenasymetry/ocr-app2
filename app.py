@@ -6,6 +6,7 @@ from PIL import Image
 from ocr_utils import ocr_space_file
 import numpy as np
 import cv2
+import re
 import time
 
 st.set_page_config(layout="wide")
@@ -29,6 +30,8 @@ st.sidebar.header("Filtrer par nom/prénom (obligatoire)")
 nom_cible = st.sidebar.text_input("Nom")
 prenom_cible = st.sidebar.text_input("Prénom")
 
+# --- Fonctions utiles ---
+
 def needs_enhancement(img_cv):
     gray = img_cv if len(img_cv.shape) == 2 else cv2.cvtColor(img_cv, cv2.COLOR_RGB2GRAY)
     fm = cv2.Laplacian(gray, cv2.CV_64F).var()
@@ -46,8 +49,45 @@ def prepare_ocr_image(pil_image):
                                        cv2.THRESH_BINARY, 11, 2)
     return Image.fromarray(img_cv)
 
-# Tu dois définir ici ou importer les fonctions suivantes :
-# detect_type_doc, match_nom_prenom, emoji_doc
+def normalize_str(s):
+    return re.sub(r'\W+', '', s).lower()
+
+def match_nom_prenom(texte, nom, prenom):
+    texte_norm = normalize_str(texte)
+    nom_norm = normalize_str(nom)
+    prenom_norm = normalize_str(prenom)
+    if nom_norm and nom_norm not in texte_norm:
+        return False
+    if prenom_norm and prenom_norm not in texte_norm:
+        return False
+    return True
+
+def detect_type_doc(texte):
+    texte = texte.lower()
+    types = []
+    if ci_check and ("carte d'identité" in texte or "cni" in texte):
+        types.append("Carte d'identité")
+    if passeport_check and "passeport" in texte:
+        types.append("Passeport")
+    if ts_check and "titre de séjour" in texte:
+        types.append("Titre de séjour")
+    if jd_check and ("justificatif de domicile" in texte or "facture" in texte or "quittance" in texte):
+        types.append("Justificatif de domicile")
+    if rib_check and ("rib" in texte or "relevé d'identité bancaire" in texte):
+        types.append("RIB")
+    return types[0] if types else None
+
+def emoji_doc(type_doc):
+    emojis = {
+        "Carte d'identité": "🆔",
+        "Passeport": "🛂",
+        "Titre de séjour": "📄",
+        "Justificatif de domicile": "🏠",
+        "RIB": "🏦"
+    }
+    return emojis.get(type_doc, "📄")
+
+# --- Upload des fichiers ---
 
 uploaded_files = st.file_uploader(
     "Sélectionnez vos documents (PDF ou images scannées, tout type administratif)",
@@ -75,8 +115,10 @@ if uploaded_files:
 
         for idx, img in enumerate(images):
             prep_img = prepare_ocr_image(img)
-            texte = ocr_space_file(prep_img)  # Appel à l’API OCR.Space avec ta clé intégrée
-            time.sleep(1.2)  # Évite de spammer l'API si plusieurs fichiers/pages
+
+            # Appel à l’API OCR.Space
+            texte = ocr_space_file(prep_img)
+            time.sleep(1.2)  # Évite de spammer l'API
 
             type_trouve = detect_type_doc(texte)
             if type_trouve and match_nom_prenom(texte, nom_cible, prenom_cible):
