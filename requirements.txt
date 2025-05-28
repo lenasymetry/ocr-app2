@@ -1,8 +1,7 @@
 flask
 pillow
-pytesseract
 numpy
 opencv-python-headless
 pymupdf
-gunicorn
 streamlit
+requests
