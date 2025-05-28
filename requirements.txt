@@ -1,6 +1,7 @@
-streamlit
+flask
+pillow
 pytesseract
-opencv-python-headless
 numpy
-Pillow
-PyMuPDF
+opencv-python-headless
+pymupdf
+gunicorn

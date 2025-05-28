@@ -9,7 +9,7 @@ import cv2
 import re
 
 # Adapter ce chemin si besoin
-pytesseract.pytesseract.tesseract_cmd = "/opt/homebrew/bin/tesseract"
+pytesseract.pytesseract.tesseract_cmd = "/opt/homebrew/bin/tesseract" 
 
 st.set_page_config(layout="wide")
 
@@ -212,3 +212,4 @@ if uploaded_files:
         st.info("Aucun document trouvé au nom/prénom spécifié.")
     elif not (nom_cible or prenom_cible):
         st.warning("Veuillez renseigner un nom et/ou un prénom pour activer la recherche.")
+
